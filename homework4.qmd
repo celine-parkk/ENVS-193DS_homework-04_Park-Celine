@@ -1,0 +1,40 @@
+---
+title: "Homework 4"
+author: "Celine Park"
+format: html
+editor: visual
+---
+
+#1. 
+Biological Terms: 
+Null: There is no significant relationship between fish length and fish weight for trout perch across all sample years
+Alternate: There is a significant relationship between fish length and fish weight for trout perch across all sample years.
+
+```{r}
+library(here)
+library(ggplot2)
+library(janitor)
+library(tidyverse)
+library(readxl)
+```
+
+
+```{r}
+#1.
+fish_length <- read.csv(here("fish_length.csv")) |>
+  clean_names() |>
+  dplyr::select("spname", "length", "weight") 
+#2.
+ggplot(data = fish_length, aes(x = length, y = weight)) +
+  geom_point()
+
+#3. 
+test <- lm(weight~length, data = fish_length)
+
+#4. 
+
+  
+  
+
+```
+
