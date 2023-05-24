@@ -17,13 +17,12 @@ library(janitor)
 library(tidyverse)
 library(readxl)
 library(tidyverse)
-library(lterdatasampler)
 library(performance)
 library(broom)
 library(flextable)
-install.packages("ggeffects")
 library(ggeffects)
 library(car)
+library(naniar)
 ```
 
 
@@ -38,14 +37,14 @@ fish_length <- read.csv(here("fish_length.csv")) |>
 
 ```{r}
 #2.
-ggplot(data = fish_length, aes(x = weight, y = length)) +
+ggplot(data = fish_length, aes(x = length, y = weight)) +
   geom_point()
 ```
 
 
 ```{r}
 #3. 
-test <- lm(weight~length, data = fish_length)
+test <- lm(length~weight, data = fish_length)
 test
 ```
 
