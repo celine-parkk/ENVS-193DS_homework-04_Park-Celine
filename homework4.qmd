@@ -2,6 +2,9 @@
 title: "Homework 4"
 author: "Celine Park"
 format: html
+execute: 
+  warning: false
+  message: false
 editor: visual
 ---
 
@@ -10,7 +13,7 @@ Biological Terms:
 Null: There is no significant relationship between fish length and fish weight for trout perch across all sample years
 Alternate: There is a significant relationship between fish length and fish weight for trout perch across all sample years.
 
-```{r}
+```{r-loading-libraries}
 library(here)
 library(ggplot2)
 library(janitor)
@@ -26,41 +29,50 @@ library(naniar)
 ```
 
 
-```{r}
+```{r-reading-in-data}
 #1.
-fish_length <- read.csv(here("fish_length.csv")) |>
-  clean_names() |>
-  filter(spname == "TROUTPERCH") |>
-  select(spname, length, weight) |>
-  mutate_at(2:3, as.numeric)
+fish_length <- read.csv(here("fish_length.csv")) |> #reading in data
+  clean_names() |> #making all the names lowercase
+  filter(spname == "TROUTPERCH") |> #filtering to only get trout perch data
+  select(spname, length, weight) |> #selecting the relevant columns
+  mutate_at(2:3, as.numeric) #converting it all to numeric
   
  
 
 ```
 
 
-```{r}
+```{r-creating-ggplot}
 #2.
-ggplot(data = fish_length, aes(x = weight, y = length)) +
+ggplot(data = fish_length, aes(x = weight, y = length)) + #creating the ggplot
   geom_point() +
-  labs(caption = "missing data skews the relationship between trout weight and length when there could be a stronger/weaker correlation with more data")
+  labs(caption = "Missing data skews the relationship between trout weight and length when there could be a stronger/weaker correlation with more data.") +
+  theme(plot.caption = element_text(size = 8))
 
-gg_miss_var(fish_length)
+gg_miss_var(fish_length) #looking at missing data
 ```
 
 
 ```{r}
 #3. 
-test <- lm(weight~length, data = fish_length)
+test <- lm(weight~length, data = fish_length) #running the linear regression model test
 test
 ```
 
 ```{r}
 #4. 
-par(mfrow = c(2,2))
+par(mfrow = c(2,2)) #creating the plots to cisually check the assumptions of the test
 plot(test)
 
-#The residuals vs. fitted plots
+#5.
+#The residuals vs. fitted plots checks for the constant variance of residuals. If there is any pattern, then the assumption of homoscedasticity is violated, but it looks like here that there is no pattern and it is mostly randomly distributed around the horizontal dotted line. 
+
+#The Q-Q Residuals checks for normally distributed residuals. It looks as if the data is normally distributed as it follows a straight line. 
+
+#Scale-Location plot tells the same thing, except using the square root of the standardized residuals. In this graph it looks like there is no pattern, so homoscedasticity is not violated.
+
+#Residuals vs. Leverage measures how much influence a single observation has on the model. There are a couple points labelled outside of the dashed lines, and this may influence my model. 
+
 ```
 
 
@@ -69,13 +81,13 @@ plot(test)
 
 ```{r}
 #6.
-summary(test)
+summary(test) #displaing the summary of my model object
 ```
 
 ```{r}
 #7. 
 model_test <- summary(test)
-model_squares <- anova(test)
+model_squares <- anova(test) #creating an anova table
 
 model_squares_table <- tidy(model_squares) %>% 
   # round the sum of squares and mean squares columns to have 5 digits (could be less)
@@ -96,17 +108,21 @@ model_squares_table <- tidy(model_squares) %>%
                     p.value = "p-value")
 
 model_squares_table
+
+#8. The ANOVA table relates information from the summary() table because the summary() function gives all the information from the ANOVA table in part of its output. On top of that, the summary() function also provides the coefficients and the residuals. Thus, together you can get the overall significance of the linear regression model.
+
+#9. This linear regression model showed that there was a relationship between perch trout's length and weight, with there being F(1, df=1 = 1,280.8, p<0.001). There was also a variation in the data as the mean square was 1,432,28769 and a sum of squares of 1,432.2877 shown with the ANOVA table, p<0.001.
 ```
 
 
 ```{r}
 #10
-predictions <- ggpredict(test, terms = "length")
+predictions <- ggpredict(test, terms = "length") #making the predictions for the ggplot
 
 predictions
 ```
 
-```{r}
+```{r-ggplot}
 plot_predictions <- ggplot(data = fish_length, 
                            aes(length, y = weight)) +
   # first plot the underlying data from maples_data
@@ -122,7 +138,10 @@ plot_predictions <- ggplot(data = fish_length,
   # theme and meaningful labels
   theme_bw() +
   labs(x = "Length",
-       y = "Weight")
+       y = "Weight", 
+       title = "Trout Perch Length vs. Weight",
+       caption = "Linear Regression Model of the relationship between Trout Perch Length and Weight") +
+  theme(plot.caption.position = "plot")
 
 plot_predictions
 ```
