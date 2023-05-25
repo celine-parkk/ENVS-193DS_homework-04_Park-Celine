@@ -30,21 +30,28 @@ library(naniar)
 #1.
 fish_length <- read.csv(here("fish_length.csv")) |>
   clean_names() |>
-  dplyr::select("spname", "length", "weight") |>
+  filter(spname == "TROUTPERCH") |>
+  select(spname, length, weight) |>
   mutate_at(2:3, as.numeric)
+  
+ 
+
 ```
 
 
 ```{r}
 #2.
-ggplot(data = fish_length, aes(x = length, y = weight)) +
-  geom_point()
+ggplot(data = fish_length, aes(x = weight, y = length)) +
+  geom_point() +
+  labs(caption = "missing data skews the relationship between trout weight and length when there could be a stronger/weaker correlation with more data")
+
+gg_miss_var(fish_length)
 ```
 
 
 ```{r}
 #3. 
-test <- lm(length~weight, data = fish_length)
+test <- lm(weight~length, data = fish_length)
 test
 ```
 
@@ -52,6 +59,8 @@ test
 #4. 
 par(mfrow = c(2,2))
 plot(test)
+
+#The residuals vs. fitted plots
 ```
 
 
@@ -95,9 +104,11 @@ model_squares_table
 predictions <- ggpredict(test, terms = "length")
 
 predictions
+```
 
+```{r}
 plot_predictions <- ggplot(data = fish_length, 
-                           aes(x = length, y = weight)) +
+                           aes(length, y = weight)) +
   # first plot the underlying data from maples_data
   geom_point() +
   # then plot the predictions
@@ -110,13 +121,11 @@ plot_predictions <- ggplot(data = fish_length,
               alpha = 0.2) +
   # theme and meaningful labels
   theme_bw() +
-  labs(x = "Stem length (mm)",
-       y = "Stem dry mass (g)")
+  labs(x = "Length",
+       y = "Weight")
 
 plot_predictions
 ```
 
-  
 
-```
 
